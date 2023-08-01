@@ -1,3 +1,10 @@
+<#	
+	NOTES
+	 Created on:   	8/1/2023
+	 Created by:   	Hunter Mancini
+	DESCRIPTION
+		This Powershell was created to automate the check of users in my environment for licensing and their MFA group
+#>
 #Variable counters
 $UsersnotfoundinOffice365 = 0
 $Userswithalicense = 0
