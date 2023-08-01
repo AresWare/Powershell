@@ -3,38 +3,38 @@ $UsersnotfoundinOffice365 = 0
 $Userswithalicense = 0
 $Userswithoutalicense = 0
 $UsersChecked = 0
-$UsernotfoundinAzureAD = 0
-
+$UserswithMFA = 0
+$UsersnotfoundinAzureAD = 0
+$UserswithoutMFA = 0
  
  
 #CSV with the users
-$CSVCheck = "C:\8-1-23.csv"
-#Get credential to log into Office 365
-$UserCredential = Get-Credential
+$Users = "C:users.csv"
 Write-Host "Connecting to Office 365..." -ForegroundColor Yellow
 #Connect to Office 365
-Connect-MsolService -Credential $UserCredential
-Connect-Azuread -Credential $UserCredential
+#Connect-MsolService
+#Connect-AzureAD 
  
-Import-Csv $CSVCheck | Foreach-Object{
-	#CSV headers to variables to work with
-	$Users = $_.Name
+Import-Csv $Users | Foreach-Object{
+$Name = $_.Name
+
+    $license ="thelazyadmin:STANDARDPACK" #E1 = STANDARDPACK, E2 = STANDARDWOFFPACK
 	
-	#Display a status to the shell on what user its working on
-	Write-Host "Working on $Users" -ForegroundColor Yellow
+	#Display a status to the shell on what user it's working on
+	Write-Host "Working on $Name" -ForegroundColor Yellow
     $UsersChecked++
 	
 	
 	#Find the user from the CSV and match them with an Office 365 user
-	$LicensedUsers = (Get-MsolUser | Where-Object { $_.DisplayName -like "*$Users*" }).UserPrincipalName
+	$LicensedUsers = Get-MsolUser -UserPrincipalName $_.UserPrincipalName | select-object -expandproperty UserPrincipalName
 	If (!($LicensedUsers))
 	{
-		Write-Host "Could not find a matched user in Office 365 for $Users" -ForegroundColor Red
+		Write-Host "Could not find a matched user in Office 365 for $Name" -ForegroundColor Red
 		$UsersnotfoundinOffice365++
 	}
 	Else
 	{
-		Write-Host "Matched $Users with $LicensedUsers" -ForegroundColor White
+		Write-Host "Matched $Name with $LicensedUsers" -ForegroundColor White
 		
 		Foreach ($LicensedUser in $LicensedUsers)
 		{
@@ -51,48 +51,64 @@ Import-Csv $CSVCheck | Foreach-Object{
 			{
 				Write-Host "$LicensedUser is not Licensed!" -ForegroundColor Red
 				$Userswithoutalicense++
+                set-msoluserlicense -userPrincipalName $_.userPrincipalName -AddLicenses $license
 			}
 			
 		}
 	}
-    
-    $MFAUsers = (Get-AzureADUser -ObjectId $User.userPrincipalName)
-    If (!($MFAUsers))
-    {
-        Write-Host "Could not find Azure User for $User" -ForegroundColor Red
-        $UsernotfoundinAzureAD++
-    
-    }
-
-    else
-
-    {
-        Write-Host "Matched $User with $MFAUsers" -ForegroundColor White
-        Foreach ($MFAUsers in $MFAUsers)
+      #Begins checking which MFA group users are apart of  
+	  $MFAUsers = Get-AzureADUser -ObjectId $_.userPrincipalName | Select-Object -ExpandProperty objectid
+        If (!($MFAUsers))
+        #
         {
-            Write-Host "Checking MFA group for $User..." -ForegroundColor White
-            $MFAStatus = Get-AzureADUserMembership -ObjectID $MFAUser.ObjectID | Select DisplayName
-
-            If ( ($MFAStatus -eq "MFA_Group_Non_Fob") or ($MFAStatus -eq "MFA_FOB") )			
-			{
-                Write-Host "$User is a non fob user" -ForegroundColor Green
-				$UserwithMFA++
+            Write-Host "Could not find Azure User for $Name" -ForegroundColor Red
+            $UsernotfoundinAzureAD++
+        
         }
-        else {
-            Write-Host "$User is not in MFA!" -ForegroundColor Red
-        }
-
+        Else 
+        {
+            Write-Host "Matched $Name with $MFAUsers" -ForegroundColor White
+            Foreach ($MFAUser in $MFAUsers)
+        {
+        #Checks user for Non FOB MFA group if true it'll display 
+                Write-Host "Checking MFA group for $Name..." -ForegroundColor White
+                $MFAStatus = (Get-AzureADUserMembership -ObjectID $MFAUser | Select DisplayName)
+    
+                If  ($MFAStatus -match "MFA_Group_Non_FOB")
+                
+                {
+    
+                    Write-Host "$Name is a non fob user" -ForegroundColor Cyan
+                    $UserswithMFA++
+                }
+            Elseif ($MFAStatus -match "MFA_FOB") 
+            {
+                Write-Host "$Name is a FOB user" -ForegroundColor DarkCyan
+                $UserswithMFA++
+            }
+            Else 
+            {
+                Write-Host "$Name is not in MFA!" -ForegroundColor Red
+                $UserswithoutMFA++
+            }
         }
     }
+  }
+	
+
+
+
+    
 	
 	
-}
+
 #End script stats
 Write-Host "--------------------------STATS------------------------------" -ForegroundColor White
 Write-Host "TOTAL USERS CHECKED: $UsersChecked" -ForegroundColor Black -BackgroundColor White
 Write-Host "USERS NOT FOUND IN OFFICE 365: $UsersnotfoundinOffice365" -ForegroundColor Black -BackgroundColor White
 Write-Host "USERS NOT LICENSED: $Userswithoutalicense" -ForegroundColor Black -BackgroundColor White
 Write-Host "USERS WITH A  LICENSE: $Userswithalicense" -ForegroundColor Black -BackgroundColor White
-Write-Host "USERS NOT FOUND IN AZURE: $UsernotfoundinAzureAD" -ForegroundColor Black -BackgroundColor White
-Write-Host "USERS WITH MFA: $UserwithMFA" -ForegroundColor Black -BackgroundColor White
+Write-Host "USERS NOT FOUND IN AZURE: $UsersnotfoundinAzureAD" -ForegroundColor Black -BackgroundColor White
+Write-Host "USERS WITH MFA: $UserswithMFA" -ForegroundColor Black -BackgroundColor White
+Write-Host "USERS WITHOUT MFA: $UserswithoutMFA" -ForegroundColor Black -BackgroundColor White
 Write-Host "-------------------------------------------------------------" -ForegroundColor White
