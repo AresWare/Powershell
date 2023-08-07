@@ -52,38 +52,38 @@ foreach ($User in $List) {
     $ExistingGroups = Get-ADUser $ADUser -Properties MemberOf | Select-Object -ExpandProperty MemberOf | Get-ADGroup | Select-Object Name
         if ($ExistingGroups.Name -eq $50GrandGroup){
             Write-Host "Adding $Group1 to $ADUser" -ForeGroundColor Green
-            Copy-Item $50Grand $UserFolder
-            Copy-Item "Unc-To-Folder" "Unc-to-folder\$ADUser"
+            Copy-Item "Unc-to-folder\" "$UserFolder"
+            Copy-Item "$Folder1" "Unc-to-folder\$ADUser"
            
         }
         if ($ExistingGroups.Name -eq $374GrandGroup){
             Write-Host "Adding $Group2 to $ADUser" -ForeGroundColor Green
-            Copy-Item "$374Grand" "$UserFolder"
-            Copy-Item "Unc-To-Folder" "Unc-to-folder\$ADUser"
+            Copy-Item "Unc-to-folder\" "$UserFolder"
+            Copy-Item "$Folder2" "Unc-to-folder\$ADUser"
            
         }
         if ($ExistingGroups.Name -eq $150SargentGroup){
             Write-Host "Adding $Group3 to $ADUser" -ForeGroundColor Green
-            Copy-Item $150Sargent $UserFolder
-            Copy-Item "Unc-To-Folder" "Unc-to-folder\$ADUser"
+            Copy-Item "Unc-to-folder\" "$UserFolder"
+            Copy-Item "$Folder3" "Unc-to-folder\$ADUser"
             
         }
         if ($ExistingGroups.Name -eq $BellaVistaGroup){
             Write-Host "Adding $Group4 to $ADUser" -ForeGroundColor Green
-            Copy-Item $BellaVista $UserFolder
-            Copy-Item "Unc-To-Folder" "Unc-to-folder\$ADUser"
+            Copy-Item "Unc-to-folder\" "$UserFolder"
+            Copy-Item "$Folder4" "Unc-to-folder\$ADUser"
             
         }
         if ($ExistingGroups.Name -eq $DentalGroup){
             Write-Host "Adding $Group5 to $ADUser" -ForeGroundColor Green
-            Copy-Item $Dental $UserFolder
-            Copy-Item "Unc-To-Folder" "Unc-to-folder\$ADUser"
+            Copy-Item "Unc-to-folder\" "$UserFolder"
+            Copy-Item "$Folder5" "Unc-to-folder\$ADUser"
             
         }
         if ($ExistingGroups.Name -eq $ShorelineGroup){
             Write-Host "Adding $Group6 to $ADUser" -ForeGroundColor Green
-            Copy-Item $Shoreline $UserFolder
-            Copy-Item "Unc-To-Folder" "Unc-to-folder\$ADUser"
+            Copy-Item "Unc-to-folder\" "$UserFolder"
+            Copy-Item "$Folder6" "Unc-to-folder\$ADUser"
             
         }
 
