@@ -14,7 +14,10 @@ Start-Sleep -Second 20
 echo starting compliance search
 echo please wait...
 Start-ComplianceSearch -Identity $searchName
+
+#Add email address to block list
 Set-HostedContentFilterPolicy -Identity "Default" -BlockedSenders @{Add="$searchName"}
+
 #Wait till search is done before proceeding
 
 do {
