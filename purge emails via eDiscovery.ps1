@@ -4,6 +4,10 @@
 	DESCRIPTION
 		This Powershell was created to automate the purging of phishing/spam emails this will also add them to our Office 365 block list
 #>
+#un-comment line below if you don't have an active O365 powershell session
+
+#connect-exchangeonline
+
 $searchName = Read-Host 'Enter the name of the search that you want to start'
 $searchSubject = Read-Host 'Enter the content to match the query'
 $purge = "_Purge"
