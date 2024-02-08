@@ -1,4 +1,11 @@
-﻿#Grabs all O365 Groups
+<#	
+	NOTES
+	 Created on:   	2/7/2024
+	 Created by:   	Hunter Mancini
+	DESCRIPTION
+		This script was created to change all O365 groups to private
+#>
+ #Grabs all O365 Groups
 $Groups = get-unifiedgroup | Select-Object -ExpandProperty PrimarySmtpAddress
 #Creates a loops to check groups for access type
 Foreach ($Group in $Groups)
